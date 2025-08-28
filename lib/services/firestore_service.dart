@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:routine_planner/models/event.dart';
 import 'package:routine_planner/models/routine.dart';
+import 'package:routine_planner/models/routine_set.dart';
 import 'package:routine_planner/models/task.dart';
 import 'package:routine_planner/models/user.dart';
 
@@ -24,6 +25,20 @@ class FirestoreService {
 
   Future<void> updateUserLastLogin(String uid) async {
     await _db.collection('users').doc(uid).update({'lastLoginAt': Timestamp.now()});
+  }
+
+  // --- Routine Set Operations ---
+  Future<void> addRoutineSet(RoutineSet routineSet) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    await _db.collection('users').doc(user.uid).collection('routine_sets').add(routineSet.toFirestore());
+  }
+
+  Stream<List<RoutineSet>> getRoutineSets() {
+    final user = _auth.currentUser;
+    if (user == null) return Stream.value([]);
+    return _db.collection('users').doc(user.uid).collection('routine_sets').snapshots().map((snapshot) =>
+        snapshot.docs.map((doc) => RoutineSet.fromFirestore(doc, null)).toList());
   }
 
   // --- Routine Operations ---

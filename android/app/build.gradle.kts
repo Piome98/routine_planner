@@ -16,6 +16,7 @@ dependencies{
     implementation("com.google.firebase:firebase-analytics")
 
 
+
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
 }
@@ -23,7 +24,7 @@ dependencies{
 android {
     namespace = "com.example.routine_planner"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

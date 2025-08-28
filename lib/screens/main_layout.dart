@@ -64,12 +64,14 @@ class _MainLayoutState extends State<MainLayout> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       children: [
-                        Text(
-                          _screenTitles[_selectedIndex],
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1F2937),
+                        Expanded(
+                          child: Text(
+                            _screenTitles[_selectedIndex],
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1F2937),
+                            ),
                           ),
                         ),
                         const Spacer(),

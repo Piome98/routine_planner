@@ -54,4 +54,34 @@ class Routine {
       'updatedAt': updatedAt,
     };
   }
+
+  factory Routine.fromMap(Map<String, dynamic> data) {
+    return Routine(
+      id: data?['id'],
+      userId: data?['userId'],
+      name: data?['name'],
+      description: data?['description'],
+      frequency: List<String>.from(data?['frequency'] ?? []),
+      startTime: data?['startTime'],
+      endTime: data?['endTime'],
+      isActive: data?['isActive'] ?? true,
+      createdAt: data?['createdAt'],
+      updatedAt: data?['updatedAt'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'name': name,
+      'description': description,
+      'frequency': frequency,
+      'startTime': startTime,
+      'endTime': endTime,
+      'isActive': isActive,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
+  }
 }
