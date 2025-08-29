@@ -257,7 +257,7 @@ class DashboardScreen extends StatelessWidget {
           // Add Task Button
           const SizedBox(height: 12),
           TextButton.icon(
-            onPressed: () {},
+            onPressed: () => _showAddTaskDialog(context, routine.id!),
             icon: const Icon(Icons.add, size: 16),
             label: const Text('Add Task'),
             style: TextButton.styleFrom(
@@ -613,5 +613,71 @@ class DashboardScreen extends StatelessWidget {
       default:
         return const Color(0xFF6B7280);
     }
+  }
+
+  void _showAddTaskDialog(BuildContext context, String routineId) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController durationController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add New Task'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Task Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: durationController,
+              decoration: const InputDecoration(
+                labelText: 'Duration (minutes)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) return;
+              
+              final firestoreService = FirestoreService();
+              final task = Task(
+                routineId: routineId,
+                name: nameController.text.trim(),
+                durationMinutes: int.tryParse(durationController.text),
+                order: 0,
+                isCompleted: {},
+              );
+              
+              try {
+                await firestoreService.addTaskToRoutine(routineId, task);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Task added successfully')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error adding task: $e')),
+                );
+              }
+            },
+            child: const Text('Add Task'),
+          ),
+        ],
+      ),
+    );
   }
 }
