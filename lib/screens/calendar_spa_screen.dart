@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:routine_planner/widgets/spa_app_bar.dart';
 
 class CalendarSpaScreen extends StatefulWidget {
   const CalendarSpaScreen({super.key});
@@ -10,8 +11,16 @@ class CalendarSpaScreen extends StatefulWidget {
 class _CalendarSpaScreenState extends State<CalendarSpaScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
+      appBar: const SpaAppBar(
+        title: 'Calendar Routine',
+        actions: [
+          Icon(Icons.today, color: Color(0xFF6B7280)),
+          SizedBox(width: 16),
+          Icon(Icons.view_module, color: Color(0xFF6B7280)),
+        ],
+      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -32,7 +41,7 @@ class _CalendarSpaScreenState extends State<CalendarSpaScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Coming soon...',
+              'Phase 2.3 - Full implementation coming next...',
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFF6B7280),

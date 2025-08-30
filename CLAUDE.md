@@ -184,13 +184,59 @@ The app features a modern dashboard-style interface with:
 - ✅ Settings screen with comprehensive user management completed
 - ✅ Theme and localization system implemented
 - ✅ Firebase integration for all user preferences completed
+- ✅ Code analysis and critical error fixes completed (27 → 8 minor issues)
 
-**Next Steps:**
-- 🔄 Develop task management SPA interface
-- 🔄 Develop calendar routine management SPA interface
-- 🔄 Update app routing structure for SPA flow
-- 🔄 Test new SPA navigation and user experience
-- 🔄 Run code analysis and fix any issues
+**Development Roadmap (Phase 2 - SPA Implementation):**
+
+**✅ Phase 2.1: App Routing Structure Update (COMPLETED)**
+- ✅ Updated AuthWrapper to integrate onboarding flow with preference checking
+- ✅ Implemented preference-based automatic routing (Task SPA vs Calendar SPA)
+- ✅ Transitioned from main_layout.dart to new SPA routing system
+- ✅ Added settings access through profile dropdown in SPAs
+- ✅ Created SpaAppBar component with user profile dropdown menu
+- ✅ Integration: AuthWrapper → OnboardingScreen → User Preferences → Preferred SPA
+
+**🔄 Phase 2.2: Task Management SPA Development**
+- Transform task_spa_screen.dart from basic template to full interface
+- Features to implement:
+  - Task list view with routine-based grouping
+  - Task completion toggle with visual feedback
+  - Integrated statistics dashboard
+  - Profile dropdown with settings access
+  - Real-time Firebase synchronization
+  - Responsive design for desktop/mobile
+
+**🔄 Phase 2.3: Calendar Routine Management SPA Development**
+- Transform calendar_spa_screen.dart from basic template to full interface
+- Integrate existing events_screen.dart calendar functionality
+- Features to implement:
+  - Calendar-based routine scheduling interface
+  - Drag & drop routine management
+  - Month/Week/Day view switching
+  - Profile dropdown with settings access
+  - Real-time routine updates
+
+**🔄 Phase 2.4: Cleanup & Optimization**
+- Remove deprecated screen files:
+  - main_layout.dart
+  - dashboard_screen.dart
+  - routines_screen.dart
+  - statistics_screen.dart
+- Final code analysis and optimization
+- End-to-end testing of SPA flow
+
+**Current Focus:**
+- 🎯 Ready to begin Phase 2.2: Task Management SPA Development
+
+**Phase 2.1 Implementation Details:**
+- **New Files Created:**
+  - `lib/widgets/spa_app_bar.dart` - Reusable AppBar with profile dropdown
+- **Modified Files:**
+  - `lib/screens/auth_wrapper.dart` - Added onboarding + preference-based routing
+  - `lib/screens/task_spa_screen.dart` - Added SpaAppBar integration
+  - `lib/screens/calendar_spa_screen.dart` - Added SpaAppBar integration
+- **User Flow:** Login → Check Preferences → (No Preferences: Onboarding) → Preferred SPA
+- **Settings Access:** Profile dropdown in both SPAs leads to settings screen
 
 **Notes:**
 - Models and backend services (FirestoreService, AuthService) remain unchanged

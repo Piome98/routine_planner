@@ -1,9 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:routine_planner/screens/login_screen.dart';
 import 'package:routine_planner/screens/signup_screen.dart';
-import 'package:routine_planner/screens/main_layout.dart';
+import 'package:routine_planner/screens/onboarding_screen.dart';
+import 'package:routine_planner/screens/task_spa_screen.dart';
+import 'package:routine_planner/screens/calendar_spa_screen.dart';
+import 'package:routine_planner/models/user_preferences.dart';
 import 'package:routine_planner/services/auth_service.dart';
 
 // This widget decides which screen to show based on the authentication state.
@@ -22,8 +26,30 @@ class AuthWrapper extends StatelessWidget {
             // User is not logged in, show authentication screens
             return const AuthPage();
           } else {
-            // User is logged in, show main layout with dashboard
-            return const MainLayout();
+            // User is logged in, check preferences and route accordingly
+            return FutureBuilder<UserPreferences?>(
+              future: _getUserPreferences(user.uid),
+              builder: (context, prefSnapshot) {
+                if (prefSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                
+                final preferences = prefSnapshot.data;
+                if (preferences == null) {
+                  // No preferences found, show onboarding
+                  return const OnboardingScreen();
+                } else {
+                  // Preferences exist, route to preferred SPA
+                  return preferences.preferredInterface == PreferredInterface.taskManagement
+                      ? const TaskSpaScreen()
+                      : const CalendarSpaScreen();
+                }
+              },
+            );
           }
         } else {
           return const Scaffold(
@@ -34,6 +60,25 @@ class AuthWrapper extends StatelessWidget {
         }
       },
     );
+  }
+
+  Future<UserPreferences?> _getUserPreferences(String uid) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('preferences')
+          .doc('main')
+          .get();
+      
+      if (doc.exists) {
+        return UserPreferences.fromFirestore(doc, null);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching user preferences: $e');
+      return null;
+    }
   }
 }
 
