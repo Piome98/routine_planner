@@ -57,16 +57,16 @@ class Routine {
 
   factory Routine.fromMap(Map<String, dynamic> data) {
     return Routine(
-      id: data?['id'],
-      userId: data?['userId'],
-      name: data?['name'],
-      description: data?['description'],
-      frequency: List<String>.from(data?['frequency'] ?? []),
-      startTime: data?['startTime'],
-      endTime: data?['endTime'],
-      isActive: data?['isActive'] ?? true,
-      createdAt: data?['createdAt'],
-      updatedAt: data?['updatedAt'],
+      id: data['id'],
+      userId: data['userId'],
+      name: data['name'],
+      description: data['description'],
+      frequency: List<String>.from(data['frequency'] ?? []),
+      startTime: data['startTime'],
+      endTime: data['endTime'],
+      isActive: data['isActive'] ?? true,
+      createdAt: data['createdAt'],
+      updatedAt: data['updatedAt'],
     );
   }
 

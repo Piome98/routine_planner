@@ -131,18 +131,68 @@ The app features a modern dashboard-style interface with:
 - ⏳ Dependencies verified: Flutter SDK 3.32.7, all Firebase packages properly installed
 - ⏳ Ready for Firebase connection testing and transaction verification
 
-**Next Steps (Pending):**
-- 🔄 Test Firebase connection and authentication flow
-- 🔄 Test Firestore database operations (CRUD)
-- 🔄 Test social authentication (Google, Facebook)
-- 🔄 Test real-time data synchronization
-- 🔄 Test UI components and navigation flow
-- 🔄 Run flutter analyze and fix any remaining issues
-- 🔄 Test app build for different platforms (Android/iOS)
+**SPA Architecture Refactoring (2025-01-30):**
+- 🔄 **Major UI Architecture Change:** Transitioning from multi-screen sidebar navigation to Single Page Application (SPA) approach
+- 🔄 **New User Flow:** Authentication → Onboarding (preferences) → Choice between Task Management SPA or Calendar Routine SPA
+- 🔄 **Deprecated Files:** `main_layout.dart`, `dashboard_screen.dart`, `routines_screen.dart`, `statistics_screen.dart`
+- 🔄 **Retained Files:** `auth_wrapper.dart`, `login_screen.dart`, `signup_screen.dart`, `events_screen.dart` (calendar functionality)
+- 🔄 **New Files to Create:**
+  - `onboarding_screen.dart` - User preference setup after signup
+  - `task_spa_screen.dart` - Task-focused management interface
+  - `calendar_spa_screen.dart` - Calendar-based routine management interface
+
+**SPA Implementation Plan:**
+1. ✅ **Analysis Phase:** Identified deprecated vs retained screen files
+2. ✅ **Enhanced Onboarding System:** Complete 4-step onboarding implementation
+   - Welcome → Language Selection → Interface Selection → Theme Selection
+   - 8 language support with native names and flag indicators
+   - 6 dynamic theme options with gradient previews
+   - Comprehensive validation and progress tracking
+   - Firebase Firestore integration for preference storage
+3. ✅ **Settings Screen:** Full user profile management system
+   - Account management with user info and sign-out
+   - Dynamic language, theme, and interface switching
+   - Notification preferences with toggle controls
+   - About section with app information and support links
+4. 🔄 **Task Management SPA:** Consolidated task management interface with integrated statistics
+5. 🔄 **Calendar Routine SPA:** Calendar-based routine management using existing events_screen.dart calendar functionality
+6. 🔄 **Routing Update:** Implement preference-based routing logic
+7. 🔄 **Cleanup:** Remove deprecated screen files
+
+**Current Development (2025-01-30):**
+- ✅ **Enhanced Onboarding System:** Complete 4-step onboarding process implemented
+  - Step 1: Welcome screen with app introduction
+  - Step 2: Language selection (8 supported languages with native names and flags)
+  - Step 3: Interface preference (Task Management vs Calendar View)
+  - Step 4: Theme selection (6 color themes with live preview)
+  - Real-time progress indicator and validation for each step
+- ✅ **Settings Screen:** Comprehensive user profile management system
+  - Account management with sign-out functionality
+  - Dynamic language switching with flag indicators
+  - Theme selection with gradient previews
+  - Interface preference switching
+  - Notification settings toggle
+  - About section with app info and help links
+- ✅ **Data Models & Services:**
+  - `AppLocale` model with 8 language support (EN, KO, JA, CN, ES, FR, DE, PT)
+  - `AppTheme` model with 6 color themes (Indigo, Emerald, Rose, Amber, Purple, Blue)
+  - Enhanced `UserPreferences` model with theme and locale fields
+  - Firebase Firestore integration for all preference storage
+
+**Implementation Status:**
+- ✅ Enhanced onboarding system with 4-step flow completed
+- ✅ Settings screen with comprehensive user management completed
+- ✅ Theme and localization system implemented
+- ✅ Firebase integration for all user preferences completed
+
+**Next Steps:**
+- 🔄 Develop task management SPA interface
+- 🔄 Develop calendar routine management SPA interface
+- 🔄 Update app routing structure for SPA flow
+- 🔄 Test new SPA navigation and user experience
+- 🔄 Run code analysis and fix any issues
 
 **Notes:**
-- All core features implemented and code quality optimized
-- Firebase integration ready for live testing
-- Social authentication (Google/Facebook) implemented
-- Modern UI with dashboard and sidebar navigation complete
-- Repository successfully connected to GitHub with all commits pushed
+- Models and backend services (FirestoreService, AuthService) remain unchanged
+- Existing calendar and statistics functionality will be integrated into new SPA interfaces
+- Focus on creating seamless single-page user experience based on user preferences

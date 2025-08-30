@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:routine_planner/models/event.dart';
-import 'package:routine_planner/models/routine.dart';
 import 'package:routine_planner/services/firestore_service.dart';
 
 class StatisticsScreen extends StatelessWidget {

@@ -160,7 +160,7 @@ class DashboardScreen extends StatelessWidget {
                     return Column(
                       children: [
                         if (index > 0) const Divider(height: 1, color: Color(0xFFE5E7EB)),
-                        _buildRoutineCard(routine, firestoreService),
+                        _buildRoutineCard(routine, firestoreService, context),
                       ],
                     );
                   }).toList(),
@@ -177,7 +177,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRoutineCard(Routine routine, FirestoreService firestoreService) {
+  Widget _buildRoutineCard(Routine routine, FirestoreService firestoreService, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -664,14 +664,18 @@ class DashboardScreen extends StatelessWidget {
               
               try {
                 await firestoreService.addTaskToRoutine(routineId, task);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Task added successfully')),
-                );
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Task added successfully')),
+                  );
+                }
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error adding task: $e')),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error adding task: $e')),
+                  );
+                }
               }
             },
             child: const Text('Add Task'),
