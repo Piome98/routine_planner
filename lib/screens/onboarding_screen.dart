@@ -4,8 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:routine_planner/models/user_preferences.dart';
 import 'package:routine_planner/models/app_locale.dart';
 import 'package:routine_planner/models/app_theme.dart';
-import 'package:routine_planner/screens/task_spa_screen.dart';
-import 'package:routine_planner/screens/calendar_spa_screen.dart';
+
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -47,9 +46,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Setup Your Experience',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1F2937),
@@ -144,76 +143,79 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildWelcomePage() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: const Color(0xFF4F46E5),
-              borderRadius: BorderRadius.circular(60),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: const Color(0xFF4F46E5),
+                borderRadius: BorderRadius.circular(60),
+              ),
+              child: const Icon(
+                Icons.rocket_launch,
+                color: Colors.white,
+                size: 60,
+              ),
             ),
-            child: const Icon(
-              Icons.rocket_launch,
-              color: Colors.white,
-              size: 60,
+            const SizedBox(height: 32),
+            const Text(
+              'Welcome to RoutinePlanner!',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2937),
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 32),
-          const Text(
-            'Welcome to RoutinePlanner!',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937),
+            const SizedBox(height: 16),
+            const Text(
+              'Let\'s set up your personalized experience to help you manage your routines and tasks effectively.',
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF6B7280),
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Let\'s set up your personalized experience to help you manage your routines and tasks effectively.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF6B7280),
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildLanguagePage() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          const Text(
-            'Choose Your Language',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 40),
+            const Text(
+              'Choose Your Language',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2937),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Select your preferred language for the app',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF6B7280),
+            const SizedBox(height: 8),
+            const Text(
+              'Select your preferred language for the app',
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF6B7280),
+              ),
             ),
-          ),
-          const SizedBox(height: 40),
-          
-          Expanded(
-            child: GridView.builder(
+            const SizedBox(height: 40),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 childAspectRatio: 2.5,
@@ -293,57 +295,59 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildInterfacePage() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          const Text(
-            'Choose Your Preferred Interface',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 40),
+            const Text(
+              'Choose Your Preferred Interface',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2937),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Select the interface style that works best for you',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF6B7280),
+            const SizedBox(height: 8),
+            const Text(
+              'Select the interface style that works best for you',
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF6B7280),
+              ),
             ),
-          ),
-          const SizedBox(height: 40),
-          
-          // Task Management Option
-          _buildInterfaceOption(
-            interface: PreferredInterface.taskManagement,
-            title: 'Task Management',
-            description: 'Focus on individual tasks with lists, priorities, and completion tracking',
-            icon: Icons.checklist,
-            color: const Color(0xFF10B981),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Calendar View Option
-          _buildInterfaceOption(
-            interface: PreferredInterface.calendarView,
-            title: 'Calendar View',
-            description: 'Visual calendar interface with time-based routine scheduling',
-            icon: Icons.calendar_today,
-            color: const Color(0xFF3B82F6),
-          ),
-        ],
+            const SizedBox(height: 40),
+            
+            // Task Management Option
+            _buildInterfaceOption(
+              interface: PreferredInterface.taskManagement,
+              title: 'Task Management',
+              description: 'Focus on individual tasks with lists, priorities, and completion tracking',
+              icon: Icons.checklist,
+              color: const Color(0xFF10B981),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Calendar View Option
+            _buildInterfaceOption(
+              interface: PreferredInterface.calendarView,
+              title: 'Calendar View',
+              description: 'Visual calendar interface with time-based routine scheduling',
+              icon: Icons.calendar_today,
+              color: const Color(0xFF3B82F6),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -433,32 +437,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildThemePage() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          const Text(
-            'Choose Your Theme',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 40),
+            const Text(
+              'Choose Your Theme',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2937),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Select your preferred color theme',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF6B7280),
+            const SizedBox(height: 8),
+            const Text(
+              'Select your preferred color theme',
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF6B7280),
+              ),
             ),
-          ),
-          const SizedBox(height: 40),
-          
-          Expanded(
-            child: GridView.builder(
+            const SizedBox(height: 40),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 childAspectRatio: 1.2,
@@ -469,7 +474,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               itemBuilder: (context, index) {
                 final theme = AppTheme.getAllThemes()[index];
                 final isSelected = _selectedTheme == theme.type;
-                
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -530,42 +534,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 );
               },
             ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // Quick Preview Card
-          if (_selectedTheme != null)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.getTheme(_selectedTheme!).accentColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.getTheme(_selectedTheme!).primaryColor.withAlpha((255 * 0.3).round()),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.palette,
-                    color: AppTheme.getTheme(_selectedTheme!).primaryColor,
+            const SizedBox(height: 20),
+            // Quick Preview Card
+            if (_selectedTheme != null)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.getTheme(_selectedTheme!).accentColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.getTheme(_selectedTheme!).primaryColor.withAlpha((255 * 0.3).round()),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Your app will use the ${AppTheme.getTheme(_selectedTheme!).name} theme',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.getTheme(_selectedTheme!).primaryColor,
-                        fontWeight: FontWeight.w500,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.palette,
+                      color: AppTheme.getTheme(_selectedTheme!).primaryColor,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Your app will use the ${AppTheme.getTheme(_selectedTheme!).name} theme',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.getTheme(_selectedTheme!).primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -643,15 +645,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           .doc('main')
           .set(preferences.toFirestore());
 
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => _selectedInterface == PreferredInterface.taskManagement
-                ? const TaskSpaScreen()
-                : const CalendarSpaScreen(),
-          ),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -81,9 +81,9 @@ class SpaAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               itemBuilder: (BuildContext context) => [
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'profile',
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(Icons.person_outline, size: 18, color: Color(0xFF6B7280)),
                       SizedBox(width: 12),
@@ -91,9 +91,9 @@ class SpaAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ],
                   ),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'settings',
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(Icons.settings_outlined, size: 18, color: Color(0xFF6B7280)),
                       SizedBox(width: 12),
@@ -102,9 +102,9 @@ class SpaAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
                 const PopupMenuDivider(),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'logout',
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(Icons.logout, size: 18, color: Color(0xFFEF4444)),
                       SizedBox(width: 12),

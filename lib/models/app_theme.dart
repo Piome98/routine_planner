@@ -106,7 +106,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
-        brightness: Brightness.light,
+
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: surfaceColor,

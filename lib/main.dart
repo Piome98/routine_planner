@@ -19,24 +19,7 @@ void main() async {
         Provider<AuthService>(create: (_) => AuthService()),
         Provider<FirestoreService>(create: (_) => FirestoreService()),
       ],
-      child: const MyApp(),
+      child: const AuthWrapper(),
     ),
   );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Routine Planner', // Changed title
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true, // Added Material 3
-      ),
-      home: const AuthWrapper(), // Use AuthWrapper as home
-    );
-  }
 }

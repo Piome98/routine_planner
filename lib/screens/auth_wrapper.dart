@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:routine_planner/l10n/app_localizations.dart';
 import 'package:routine_planner/screens/login_screen.dart';
 import 'package:routine_planner/screens/signup_screen.dart';
 import 'package:routine_planner/screens/onboarding_screen.dart';
@@ -12,79 +15,102 @@ import 'package:routine_planner/services/auth_service.dart';
 
 // This widget decides which screen to show based on the authentication state.
 class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key}); // Use super.key
+  const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     return StreamBuilder<User?>(
       stream: authService.user,
-      builder: (_, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data;
-          if (user == null) {
-            // User is not logged in, show authentication screens
-            return const AuthPage();
-          } else {
-            // User is logged in, check preferences and route accordingly
-            return FutureBuilder<UserPreferences?>(
-              future: _getUserPreferences(user.uid),
-              builder: (context, prefSnapshot) {
-                if (prefSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Scaffold(
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-                
+      builder: (_, AsyncSnapshot<User?> userSnapshot) {
+        if (userSnapshot.connectionState == ConnectionState.waiting) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        final User? user = userSnapshot.data;
+        if (user == null) {
+          // User not logged in. Build MaterialApp for Auth pages.
+          return MaterialApp(
+            title: 'Routine Planner',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              useMaterial3: true,
+            ),
+            home: const AuthPage(),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+          );
+        } else {
+          // User is logged in. Fetch preferences and build MaterialApp.
+          return StreamBuilder<UserPreferences?>(
+            stream: _getUserPreferencesStream(user.uid),
+            builder: (context, prefSnapshot) {
+              Widget home;
+              Locale? locale;
+
+              if (prefSnapshot.connectionState == ConnectionState.waiting) {
+                home = const Scaffold(body: Center(child: CircularProgressIndicator()));
+              } else {
                 final preferences = prefSnapshot.data;
                 if (preferences == null) {
-                  // No preferences found, show onboarding
-                  return const OnboardingScreen();
+                  home = const OnboardingScreen();
+                  // Default to English if no prefs
+                  locale = const Locale('en', 'US');
                 } else {
-                  // Preferences exist, route to preferred SPA
-                  return preferences.preferredInterface == PreferredInterface.taskManagement
+                  home = preferences.preferredInterface == PreferredInterface.taskManagement
                       ? const TaskSpaScreen()
                       : const CalendarSpaScreen();
+                  locale = Locale(preferences.languageCode, preferences.countryCode);
                 }
-              },
-            );
-          }
-        } else {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+              }
+
+              // Build the main MaterialApp
+              return MaterialApp(
+                title: 'Routine Planner',
+                theme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                  useMaterial3: true,
+                ),
+                locale: locale,
+                supportedLocales: AppLocalizations.supportedLocales,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                home: home,
+              );
+            },
           );
         }
       },
     );
   }
 
-  Future<UserPreferences?> _getUserPreferences(String uid) async {
+  Stream<UserPreferences?> _getUserPreferencesStream(String uid) {
     try {
-      final doc = await FirebaseFirestore.instance
+      return FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
           .collection('preferences')
           .doc('main')
-          .get();
-      
-      if (doc.exists) {
-        return UserPreferences.fromFirestore(doc, null);
-      }
-      return null;
+          .snapshots()
+          .map((doc) {
+        if (doc.exists) {
+          return UserPreferences.fromFirestore(doc, null);
+        }
+        return null;
+      });
     } catch (e) {
       debugPrint('Error fetching user preferences: $e');
-      return null;
+      return Stream.value(null);
     }
   }
 }
 
 // This widget handles toggling between login and register pages
 class AuthPage extends StatefulWidget {
-  const AuthPage({super.key}); // Use super.key
+  const AuthPage({super.key});
 
   @override
   State<AuthPage> createState() => _AuthPageState();
@@ -108,4 +134,3 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 }
-

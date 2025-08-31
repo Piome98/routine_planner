@@ -9,8 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:routine_planner/main.dart';
+import 'package:routine_planner/screens/auth_wrapper.dart';
 import 'package:routine_planner/services/auth_service.dart';
+import 'package:routine_planner/services/firestore_service.dart';
 
 void main() {
   testWidgets('App loads and shows login screen when not authenticated', (WidgetTester tester) async {
@@ -22,8 +23,9 @@ void main() {
       MultiProvider(
         providers: [
           Provider<AuthService>(create: (_) => AuthService()),
+          Provider<FirestoreService>(create: (_) => FirestoreService()),
         ],
-        child: const MyApp(),
+        child: const AuthWrapper(),
       ),
     );
 
@@ -42,8 +44,9 @@ void main() {
       MultiProvider(
         providers: [
           Provider<AuthService>(create: (_) => AuthService()),
+          Provider<FirestoreService>(create: (_) => FirestoreService()),
         ],
-        child: const MyApp(),
+        child: const AuthWrapper(),
       ),
     );
 

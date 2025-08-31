@@ -1,0 +1,13 @@
+{
+  "@@locale": "en",
+  "calendarRoutineTitle": "Calendar Routine",
+  "today": "Today",
+  "calendarView": "Calendar View",
+  "routineList": "Routine List",
+  "addEvent": "Add Event",
+  "addRoutine": "Add Routine",
+  "noEventsForThisDay": "No events for this day",
+  "eventsFor": "Events for {date}",
+  "noRoutinesYet": "No Routines Yet",
+  "createRoutinesToOrganize": "Create routines to organize your daily activities"
+}

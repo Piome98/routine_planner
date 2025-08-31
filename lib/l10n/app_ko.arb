@@ -1,0 +1,13 @@
+{
+  "@@locale": "ko",
+  "calendarRoutineTitle": "캘린더 루틴",
+  "today": "오늘",
+  "calendarView": "캘린더 보기",
+  "routineList": "루틴 목록",
+  "addEvent": "이벤트 추가",
+  "addRoutine": "루틴 추가",
+  "noEventsForThisDay": "이 날에는 이벤트가 없습니다",
+  "eventsFor": "{date}의 이벤트",
+  "noRoutinesYet": "아직 루틴이 없습니다",
+  "createRoutinesToOrganize": "루틴을 만들어 일상 활동을 정리하세요"
+}
