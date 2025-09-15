@@ -2,11 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:routine_planner/models/app_locale.dart';
 import 'package:routine_planner/models/routine_suggestion_level.dart';
 
-enum PreferredInterface { taskManagement, calendarView }
-
 class UserPreferences {
   final String userId;
-  final PreferredInterface preferredInterface;
   final List<String> focusAreas;
   final bool enableNotifications;
   final String timeZone;
@@ -18,7 +15,6 @@ class UserPreferences {
 
   UserPreferences({
     required this.userId,
-    required this.preferredInterface,
     required this.focusAreas,
     required this.enableNotifications,
     required this.timeZone,
@@ -33,7 +29,6 @@ class UserPreferences {
     final data = snapshot.data();
     return UserPreferences(
       userId: data?['userId'] ?? '',
-      preferredInterface: _parsePreferredInterface(data?['preferredInterface']),
       focusAreas: List<String>.from(data?['focusAreas'] ?? []),
       enableNotifications: data?['enableNotifications'] ?? true,
       timeZone: data?['timeZone'] ?? 'UTC',
@@ -51,7 +46,6 @@ class UserPreferences {
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
-      'preferredInterface': preferredInterface.name,
       'focusAreas': focusAreas,
       'enableNotifications': enableNotifications,
       'timeZone': timeZone,
@@ -63,21 +57,8 @@ class UserPreferences {
     };
   }
 
-  static PreferredInterface _parsePreferredInterface(String? value) {
-    switch (value) {
-      case 'taskManagement':
-        return PreferredInterface.taskManagement;
-      case 'calendarView':
-        return PreferredInterface.calendarView;
-      default:
-        return PreferredInterface.taskManagement;
-    }
-  }
-
-
   UserPreferences copyWith({
     String? userId,
-    PreferredInterface? preferredInterface,
     List<String>? focusAreas,
     bool? enableNotifications,
     String? timeZone,
@@ -89,7 +70,6 @@ class UserPreferences {
   }) {
     return UserPreferences(
       userId: userId ?? this.userId,
-      preferredInterface: preferredInterface ?? this.preferredInterface,
       focusAreas: focusAreas ?? this.focusAreas,
       enableNotifications: enableNotifications ?? this.enableNotifications,
       timeZone: timeZone ?? this.timeZone,

@@ -20,7 +20,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // User preferences
   AppLocale? _selectedLocale;
-  PreferredInterface? _selectedInterface;
   RoutineSuggestionLevel? _selectedSuggestionLevel;
   final List<String> _selectedFocusAreas = [];
   final bool _enableNotifications = true;
@@ -55,7 +54,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ),
                     Text(
-                      '${_currentPage + 1}/4',
+                      '${_currentPage + 1}/3',
                       style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF6B7280),
@@ -65,7 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 const SizedBox(height: 16),
                 LinearProgressIndicator(
-                  value: (_currentPage + 1) / 4,
+                  value: (_currentPage + 1) / 3,
                   backgroundColor: const Color(0xFFE5E7EB),
                   valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4F46E5)),
                   borderRadius: BorderRadius.circular(4),
@@ -86,7 +85,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 _buildWelcomePage(),
                 _buildLanguagePage(),
-                _buildInterfacePage(),
                 _buildRoutineSuggestionPage(),
               ],
             ),
@@ -132,7 +130,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : Text(_currentPage == 3 ? 'Get Started' : 'Next'),
+                      : Text(_currentPage == 2 ? 'Get Started' : 'Next'),
                 ),
               ],
             ),
@@ -301,141 +299,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildInterfacePage() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 40),
-            const Text(
-              'Choose Your Preferred Interface',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Select the interface style that works best for you',
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0xFF6B7280),
-              ),
-            ),
-            const SizedBox(height: 40),
-            
-            // Task Management Option
-            _buildInterfaceOption(
-              interface: PreferredInterface.taskManagement,
-              title: 'Task Management',
-              description: 'Focus on individual tasks with lists, priorities, and completion tracking',
-              icon: Icons.checklist,
-              color: const Color(0xFF10B981),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Calendar View Option
-            _buildInterfaceOption(
-              interface: PreferredInterface.calendarView,
-              title: 'Calendar View',
-              description: 'Visual calendar interface with time-based routine scheduling',
-              icon: Icons.calendar_today,
-              color: const Color(0xFF3B82F6),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInterfaceOption({
-    required PreferredInterface interface,
-    required String title,
-    required String description,
-    required IconData icon,
-    required Color color,
-  }) {
-    final isSelected = _selectedInterface == interface;
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedInterface = interface;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : const Color(0xFFE5E7EB),
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: color.withAlpha((255 * 0.1).round()),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: color.withAlpha((255 * 0.1).round()),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? color : const Color(0xFF1F2937),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: color,
-                size: 24,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildRoutineSuggestionPage() {
     return SingleChildScrollView(
       child: Padding(
@@ -577,32 +440,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _handleNext() async {
-    if (_currentPage < 3) {
+    if (_currentPage < 2) {
       // Validation for each step
       if (_currentPage == 1 && _selectedLocale == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Please select your preferred language'),
-            backgroundColor: Color(0xFFEF4444),
-          ),
-        );
-        return;
-      }
-      
-      if (_currentPage == 2 && _selectedInterface == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select your preferred interface'),
-            backgroundColor: Color(0xFFEF4444),
-          ),
-        );
-        return;
-      }
-      
-      if (_currentPage == 3 && _selectedSuggestionLevel == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('루틴 제안 수준을 선택해주세요'),
             backgroundColor: Color(0xFFEF4444),
           ),
         );
@@ -619,7 +462,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _completeOnboarding() async {
-    if (_selectedInterface == null || _selectedLocale == null || _selectedSuggestionLevel == null) return;
+    if (_selectedLocale == null || _selectedSuggestionLevel == null) return;
     
     setState(() {
       _isLoading = true;
@@ -631,7 +474,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       final preferences = UserPreferences(
         userId: user.uid,
-        preferredInterface: _selectedInterface!,
         focusAreas: _selectedFocusAreas,
         enableNotifications: _enableNotifications,
         timeZone: DateTime.now().timeZoneName,

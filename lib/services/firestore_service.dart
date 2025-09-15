@@ -96,6 +96,21 @@ class FirestoreService {
     await _db.collection('users').doc(user.uid).collection('routines').doc(routineId).collection('tasks').doc(taskId).delete();
   }
 
+  // New method to get all tasks for the current user
+  Stream<List<Task>> getAllTasksForCurrentUser() {
+    final user = _auth.currentUser;
+    if (user == null) return Stream.value([]);
+
+    return _db.collection('users').doc(user.uid).collection('routines').snapshots().asyncMap((routineSnapshot) async {
+      final allTasks = <Task>[];
+      for (final routineDoc in routineSnapshot.docs) {
+        final tasksSnapshot = await _db.collection('users').doc(user.uid).collection('routines').doc(routineDoc.id).collection('tasks').get();
+        allTasks.addAll(tasksSnapshot.docs.map((doc) => Task.fromFirestore(doc, null)).toList());
+      }
+      return allTasks;
+    });
+  }
+
   // --- Event Operations ---
   Future<void> addEvent(Event event) async {
     final user = _auth.currentUser;

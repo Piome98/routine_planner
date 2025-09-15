@@ -11,37 +11,140 @@ class ChallengeScreen extends StatefulWidget {
   State<ChallengeScreen> createState() => _ChallengeScreenState();
 }
 
-class _ChallengeScreenState extends State<ChallengeScreen> {
+class _ChallengeScreenState extends State<ChallengeScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  _buildLeaderboardSection(),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+          SliverPersistentHeader(
+            delegate: _SliverTabBarDelegate(
+              TabBar(
+                controller: _tabController,
+                labelColor: Colors.blue.shade600,
+                unselectedLabelColor: Colors.grey[600],
+                indicatorColor: Colors.blue.shade600,
+                tabs: const [
+                  Tab(text: '참여 중 (1)'),
+                  Tab(text: '전체 챌린지'),
+                ],
+              ),
+            ),
+            pinned: true,
+          ),
+          SliverFillRemaining(
+            child: TabBarView(
+              controller: _tabController,
               children: [
-                _buildHeader(),
-                const SizedBox(height: 20),
-                _buildCreateButton(),
-                const SizedBox(height: 20),
-                _buildLeaderboardSection(),
-                const SizedBox(height: 20),
-                _buildChallengesSection(),
+                _buildChallengesList(participating: true),
+                _buildChallengesList(participating: false),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildHeader() {
-    final firestoreService = Provider.of<FirestoreService>(context);
-    
+  SliverAppBar _buildSliverAppBar() {
+    final firestoreService = Provider.of<FirestoreService>(context, listen: false);
+    return SliverAppBar(
+      backgroundColor: Colors.grey[50],
+      expandedHeight: 120,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+        title: const Text(
+          '챌린지',
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        background: Padding(
+          padding: const EdgeInsets.only(top: 60, left: 20),
+          child: Text(
+            '함께 성장하는 챌린지 커뮤니티',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        FutureBuilder<int>(
+          future: firestoreService.getUserPoints(),
+          builder: (context, snapshot) {
+            final userPoints = snapshot.data ?? 0;
+            return Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.yellow[100],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.star, color: Colors.orange[600], size: 18),
+                  const SizedBox(width: 4),
+                  Text(
+                    userPoints.toString(),
+                    style: TextStyle(
+                      color: Colors.orange[800],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: FloatingActionButton(
+            onPressed: () {},
+            backgroundColor: Colors.blue.shade600,
+            heroTag: 'challenge_fab',
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLeaderboardSection() {
+    final firestoreService = Provider.of<FirestoreService>(context, listen: false);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -55,221 +158,55 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '챌린지',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+          Row(
+            children: [
+              Icon(Icons.emoji_events, color: Colors.amber[600], size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                '이주의 랭킹',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '함께 성장하는 챌린지 커뮤니티',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          FutureBuilder<int>(
-            future: firestoreService.getUserPoints(),
+          const SizedBox(height: 16),
+          StreamBuilder<List<LeaderboardUser>>(
+            stream: firestoreService.getLeaderboard(limit: 3),
             builder: (context, snapshot) {
-              final userPoints = snapshot.data ?? 0;
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.orange[50],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.star, color: Colors.orange[600], size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      userPoints.toString(),
-                      style: TextStyle(
-                        color: Colors.orange[600],
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return const Center(child: Text('랭킹을 불러올 수 없습니다'));
+              }
+              final users = snapshot.data ?? [];
+              if (users.isEmpty) {
+                return const Center(child: Text('아직 랭킹 데이터가 없습니다'));
+              }
+              return Column(
+                children: users
+                    .asMap()
+                    .entries
+                    .map((entry) =>
+                        _buildLeaderboardItem(entry.value, entry.key + 1))
+                    .toList(),
               );
             },
-          ),
-          const SizedBox(width: 12),
-          GestureDetector(
-            onTap: () {
-              // TODO: 챌린지 생성 화면으로 이동
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade600,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCreateButton() {
-    return GestureDetector(
-      onTap: () {
-        // Handle create challenge
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.blue[600],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add_circle_outline, color: Colors.white),
-            SizedBox(width: 8),
-            Text(
-              '생성',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _buildLeaderboardItem(LeaderboardUser user, int rank) {
+    final rankData = _getRankData(rank);
 
-  Widget _buildLeaderboardSection() {
-    final firestoreService = Provider.of<FirestoreService>(context);
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.emoji_events, color: Colors.amber[600], size: 20),
-            const SizedBox(width: 8),
-            const Text(
-              '이주의 랭킹',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              StreamBuilder<List<LeaderboardUser>>(
-                stream: firestoreService.getLeaderboard(limit: 5),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        '랭킹을 불러올 수 없습니다',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    );
-                  }
-                  
-                  final users = snapshot.data ?? [];
-                  if (users.isEmpty) {
-                    return Center(
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.emoji_events_outlined,
-                            size: 48,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            '아직 랭킹 데이터가 없습니다',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  
-                  return Column(
-                    children: [
-                      ...users.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final user = entry.value.copyWith(rank: index + 1);
-                        return _buildLeaderboardItem(user);
-                      }),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildFilterButton('참여 중 (1)', true),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildFilterButton('전체 챌린지', false),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLeaderboardItem(LeaderboardUser user) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -278,20 +215,11 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: user.isTopThree ? user.rankColor.withAlpha(51) : Colors.grey[100],
+              color: rankData.backgroundColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
-              child: user.isTopThree
-                  ? Icon(user.rankIcon, color: user.rankColor, size: 16)
-                  : Text(
-                      '#${user.rank}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              child: Icon(rankData.icon, color: rankData.color, size: 16),
             ),
           ),
           const SizedBox(width: 12),
@@ -333,18 +261,17 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.orange[50],
+              color: Colors.yellow[100],
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.star, color: Colors.orange[600], size: 14),
                 const SizedBox(width: 4),
                 Text(
                   user.points.toString(),
                   style: TextStyle(
-                    color: Colors.orange[600],
+                    color: Colors.orange[800],
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -357,94 +284,42 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     );
   }
 
-  Widget _buildFilterButton(String text, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.blue[50] : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isSelected ? Colors.blue[600]! : Colors.grey[300]!,
-        ),
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: isSelected ? Colors.blue[600] : Colors.grey[600],
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          fontSize: 14,
-        ),
-      ),
-    );
-  }
+  Widget _buildChallengesList({required bool participating}) {
+    final firestoreService = Provider.of<FirestoreService>(context, listen: false);
+    // This is a mock implementation. Replace with actual filtering logic.
+    final stream = participating
+        ? firestoreService.getChallenges()
+        : firestoreService.getChallenges();
 
-  Widget _buildChallengesSection() {
-    final firestoreService = Provider.of<FirestoreService>(context);
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          '현재 챌린지',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 16),
-        StreamBuilder<List<ChallengeData>>(
-          stream: firestoreService.getChallenges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  '챌린지를 불러올 수 없습니다',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              );
-            }
-            
-            final challenges = snapshot.data ?? [];
-            if (challenges.isEmpty) {
-              return Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.emoji_events_outlined,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '아직 진행 중인 챌린지가 없습니다',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            
-            return Column(
-              children: challenges.map((challenge) => _buildChallengeCard(challenge)).toList(),
-            );
+    return StreamBuilder<List<ChallengeData>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text('챌린지를 불러올 수 없습니다'));
+        }
+        final challenges = snapshot.data ?? [];
+        if (challenges.isEmpty) {
+          return const Center(child: Text('해당하는 챌린지가 없습니다'));
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.all(20),
+          itemCount: challenges.length,
+          itemBuilder: (context, index) {
+            return _buildChallengeCard(challenges[index]);
           },
-        ),
-      ],
+        );
+      },
     );
   }
 
   Widget _buildChallengeCard(ChallengeData challenge) {
+    final progress = challenge.maxProgress > 0
+        ? (challenge.progress / challenge.maxProgress)
+        : 0.0;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -463,40 +338,26 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      challenge.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      challenge.description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+              Text(
+                challenge.name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: challenge.difficultyColor[100],
+                  color: Colors.green[100],
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   challenge.difficultyText,
                   style: TextStyle(
-                    color: challenge.difficultyColor[600],
+                    color: Colors.green[700],
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -504,20 +365,31 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 4),
+          Text(
+            challenge.description,
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey[600],
+            ),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Text(
-                '진행률',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
+                    minHeight: 8,
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Text(
-                '${challenge.progress}/${challenge.maxProgress} 완료',
+                '${(progress * 100).toInt()}%',
                 style: TextStyle(
                   color: Colors.blue.shade600,
                   fontSize: 13,
@@ -526,92 +398,105 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: challenge.maxProgress > 0 ? challenge.progress / challenge.maxProgress : 0.0,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
-              minHeight: 8,
-            ),
-          ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.people, color: Colors.grey[500], size: 16),
+              Icon(Icons.people_alt_outlined, color: Colors.grey[500], size: 16),
               const SizedBox(width: 4),
               Text(
-                '${challenge.participants}명 참여',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+                '${challenge.participants}명',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
-              const SizedBox(width: 16),
-              Icon(Icons.schedule, color: Colors.grey[500], size: 16),
+              const SizedBox(width: 12),
+              Icon(Icons.av_timer, color: Colors.grey[500], size: 16),
               const SizedBox(width: 4),
               Text(
                 '${challenge.daysLeft}일 남음',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
               const Spacer(),
-              Row(
-                children: [
-                  Icon(Icons.star, color: Colors.orange[600], size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${challenge.points}P',
-                    style: TextStyle(
-                      color: Colors.orange[600],
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 8),
+              Icon(Icons.star, color: Colors.orange[600], size: 16),
+              const SizedBox(width: 4),
               Text(
-                challenge.typeText,
+                '${challenge.points}P',
                 style: TextStyle(
-                  color: Colors.grey[500],
+                  color: Colors.orange[800],
+                  fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
               ),
+              const SizedBox(width: 8),
+              Icon(Icons.chat_bubble_outline, color: Colors.grey[500], size: 16),
             ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: challenge.canJoin ? () {
-                // TODO: 챌린지 참여 로직
-              } : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: challenge.canJoin 
-                    ? Colors.blue.shade600 
-                    : Colors.grey[300],
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                challenge.canJoin ? '참여하기' : challenge.statusText,
-                style: TextStyle(
-                  color: challenge.canJoin ? Colors.white : Colors.grey[600],
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
           ),
         ],
       ),
     );
   }
+
+  _RankData _getRankData(int rank) {
+    switch (rank) {
+      case 1:
+        return _RankData(
+          icon: Icons.emoji_events,
+          color: Colors.amber[700]!,
+          backgroundColor: Colors.amber[100]!,
+        );
+      case 2:
+        return _RankData(
+          icon: Icons.emoji_events,
+          color: Colors.grey[600]!,
+          backgroundColor: Colors.grey[200]!,
+        );
+      case 3:
+        return _RankData(
+          icon: Icons.emoji_events,
+          color: Colors.brown[600]!,
+          backgroundColor: Colors.brown[100]!,
+        );
+      default:
+        return _RankData(
+          icon: Icons.star_border,
+          color: Colors.grey[500]!,
+          backgroundColor: Colors.grey[100]!,
+        );
+    }
+  }
+}
+
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverTabBarDelegate(this.tabBar);
+
+  final TabBar tabBar;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: Colors.grey[50],
+      child: tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+    return false;
+  }
+}
+
+class _RankData {
+  final IconData icon;
+  final Color color;
+  final Color backgroundColor;
+
+  _RankData({
+    required this.icon,
+    required this.color,
+    required this.backgroundColor,
+  });
 }

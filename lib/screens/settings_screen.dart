@@ -140,8 +140,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildLanguageCard(),
                       const SizedBox(height: 16),
                       _buildRoutineSuggestionCard(),
-                      const SizedBox(height: 16),
-                      _buildInterfaceCard(),
                       const SizedBox(height: 32),
 
                       // Notifications Section
@@ -286,38 +284,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         subtitle: Text(currentLevel.displayName),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => _showRoutineSuggestionDialog(),
-      ),
-    );
-  }
-
-  Widget _buildInterfaceCard() {
-    final interfaceName = _userPreferences!.preferredInterface == PreferredInterface.taskManagement
-        ? 'Task Management'
-        : 'Calendar View';
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: ListTile(
-        leading: Icon(
-          _userPreferences!.preferredInterface == PreferredInterface.taskManagement
-              ? Icons.checklist
-              : Icons.calendar_today,
-          color: const Color(0xFF4F46E5),
-        ),
-        title: const Text(
-          'Preferred Interface',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        subtitle: Text(interfaceName),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => _showInterfaceDialog(),
       ),
     );
   }
@@ -517,54 +483,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('취소'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showInterfaceDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Interface'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.checklist, color: Color(0xFF10B981)),
-              title: const Text('Task Management'),
-              subtitle: const Text('Focus on individual tasks with lists and priorities'),
-              trailing: _userPreferences!.preferredInterface == PreferredInterface.taskManagement
-                  ? const Icon(Icons.check, color: Color(0xFF4F46E5))
-                  : null,
-              onTap: () {
-                Navigator.of(context).pop();
-                _updatePreferences(
-                  _userPreferences!.copyWith(preferredInterface: PreferredInterface.taskManagement),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_today, color: Color(0xFF3B82F6)),
-              title: const Text('Calendar View'),
-              subtitle: const Text('Visual calendar interface with time-based scheduling'),
-              trailing: _userPreferences!.preferredInterface == PreferredInterface.calendarView
-                  ? const Icon(Icons.check, color: Color(0xFF4F46E5))
-                  : null,
-              onTap: () {
-                Navigator.of(context).pop();
-                _updatePreferences(
-                  _userPreferences!.copyWith(preferredInterface: PreferredInterface.calendarView),
-                );
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
           ),
         ],
       ),
