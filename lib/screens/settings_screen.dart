@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:routine_planner/services/auth_service.dart';
 import 'package:routine_planner/models/user_preferences.dart';
 import 'package:routine_planner/models/app_locale.dart';
-import 'package:routine_planner/models/app_theme.dart';
+import 'package:routine_planner/models/routine_suggestion_level.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -139,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildSectionTitle('Appearance'),
                       _buildLanguageCard(),
                       const SizedBox(height: 16),
-                      _buildThemeCard(),
+                      _buildRoutineSuggestionCard(),
                       const SizedBox(height: 16),
                       _buildInterfaceCard(),
                       const SizedBox(height: 32),
@@ -253,8 +253,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildThemeCard() {
-    final currentTheme = _userPreferences!.theme;
+  Widget _buildRoutineSuggestionCard() {
+    final currentLevel = _userPreferences!.routineSuggestionLevel;
     
     return Container(
       decoration: BoxDecoration(
@@ -268,21 +268,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           height: 32,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [currentTheme.primaryColor, currentTheme.secondaryColor],
-            ),
+            color: currentLevel.color.withAlpha((255 * 0.1).round()),
+          ),
+          child: Icon(
+            currentLevel.icon,
+            color: currentLevel.color,
+            size: 18,
           ),
         ),
         title: const Text(
-          'Theme',
+          '루틴 제안 수준',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
         ),
-        subtitle: Text(currentTheme.name),
+        subtitle: Text(currentLevel.displayName),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => _showThemeDialog(),
+        onTap: () => _showRoutineSuggestionDialog(),
       ),
     );
   }
@@ -430,83 +433,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showThemeDialog() {
+  void _showRoutineSuggestionDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Theme'),
+        title: const Text('루틴 제안 수준 선택'),
         content: SizedBox(
           width: double.maxFinite,
-          child: GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 2,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: AppTheme.getAllThemes().length,
-            itemBuilder: (context, index) {
-              final theme = AppTheme.getAllThemes()[index];
-              final isSelected = _userPreferences!.selectedTheme == theme.type;
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: RoutineSuggestionLevel.values.map((level) {
+              final isSelected = _userPreferences!.routineSuggestionLevel == level;
               
               return GestureDetector(
                 onTap: () {
                   Navigator.of(context).pop();
                   _updatePreferences(
-                    _userPreferences!.copyWith(selectedTheme: theme.type),
+                    _userPreferences!.copyWith(routineSuggestionLevel: level),
                   );
                 },
                 child: Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected ? theme.primaryColor : const Color(0xFFE5E7EB),
+                      color: isSelected ? level.color : const Color(0xFFE5E7EB),
                       width: isSelected ? 2 : 1,
                     ),
+                    color: isSelected ? level.color.withAlpha((255 * 0.1).round()) : null,
                   ),
                   child: Row(
                     children: [
                       Container(
                         width: 32,
                         height: 32,
-                        margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [theme.primaryColor, theme.secondaryColor],
-                          ),
+                          color: isSelected ? level.color : Colors.grey[200],
+                        ),
+                        child: Icon(
+                          level.icon,
+                          color: isSelected ? Colors.white : Colors.grey[600],
+                          size: 18,
                         ),
                       ),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          theme.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: isSelected ? theme.primaryColor : null,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              level.displayName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: isSelected ? level.color : const Color(0xFF1F2937),
+                              ),
+                            ),
+                            Text(
+                              level.description,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       if (isSelected)
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Icon(
-                            Icons.check,
-                            color: theme.primaryColor,
-                            size: 16,
-                          ),
+                        Icon(
+                          Icons.check_circle,
+                          color: level.color,
+                          size: 20,
                         ),
                     ],
                   ),
                 ),
               );
-            },
+            }).toList(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
         ],
       ),

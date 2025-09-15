@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:routine_planner/models/app_theme.dart';
 import 'package:routine_planner/models/app_locale.dart';
+import 'package:routine_planner/models/routine_suggestion_level.dart';
 
 enum PreferredInterface { taskManagement, calendarView }
 
@@ -10,7 +10,7 @@ class UserPreferences {
   final List<String> focusAreas;
   final bool enableNotifications;
   final String timeZone;
-  final AppThemeType selectedTheme;
+  final RoutineSuggestionLevel routineSuggestionLevel;
   final String languageCode;
   final String countryCode;
   final Timestamp createdAt;
@@ -22,7 +22,7 @@ class UserPreferences {
     required this.focusAreas,
     required this.enableNotifications,
     required this.timeZone,
-    required this.selectedTheme,
+    required this.routineSuggestionLevel,
     required this.languageCode,
     required this.countryCode,
     required this.createdAt,
@@ -37,7 +37,10 @@ class UserPreferences {
       focusAreas: List<String>.from(data?['focusAreas'] ?? []),
       enableNotifications: data?['enableNotifications'] ?? true,
       timeZone: data?['timeZone'] ?? 'UTC',
-      selectedTheme: _parseThemeType(data?['selectedTheme']),
+      routineSuggestionLevel: RoutineSuggestionLevel.values.firstWhere(
+        (level) => level.value == (data?['routineSuggestionLevel'] ?? 'medium'),
+        orElse: () => RoutineSuggestionLevel.medium,
+      ),
       languageCode: data?['languageCode'] ?? 'en',
       countryCode: data?['countryCode'] ?? 'US',
       createdAt: data?['createdAt'] ?? Timestamp.now(),
@@ -52,7 +55,7 @@ class UserPreferences {
       'focusAreas': focusAreas,
       'enableNotifications': enableNotifications,
       'timeZone': timeZone,
-      'selectedTheme': selectedTheme.name,
+      'routineSuggestionLevel': routineSuggestionLevel.value,
       'languageCode': languageCode,
       'countryCode': countryCode,
       'createdAt': createdAt,
@@ -71,24 +74,6 @@ class UserPreferences {
     }
   }
 
-  static AppThemeType _parseThemeType(String? value) {
-    switch (value) {
-      case 'indigo':
-        return AppThemeType.indigo;
-      case 'emerald':
-        return AppThemeType.emerald;
-      case 'rose':
-        return AppThemeType.rose;
-      case 'amber':
-        return AppThemeType.amber;
-      case 'purple':
-        return AppThemeType.purple;
-      case 'blue':
-        return AppThemeType.blue;
-      default:
-        return AppThemeType.indigo;
-    }
-  }
 
   UserPreferences copyWith({
     String? userId,
@@ -96,7 +81,7 @@ class UserPreferences {
     List<String>? focusAreas,
     bool? enableNotifications,
     String? timeZone,
-    AppThemeType? selectedTheme,
+    RoutineSuggestionLevel? routineSuggestionLevel,
     String? languageCode,
     String? countryCode,
     Timestamp? createdAt,
@@ -108,7 +93,7 @@ class UserPreferences {
       focusAreas: focusAreas ?? this.focusAreas,
       enableNotifications: enableNotifications ?? this.enableNotifications,
       timeZone: timeZone ?? this.timeZone,
-      selectedTheme: selectedTheme ?? this.selectedTheme,
+      routineSuggestionLevel: routineSuggestionLevel ?? this.routineSuggestionLevel,
       languageCode: languageCode ?? this.languageCode,
       countryCode: countryCode ?? this.countryCode,
       createdAt: createdAt ?? this.createdAt,
@@ -117,5 +102,4 @@ class UserPreferences {
   }
 
   AppLocale get locale => AppLocale.getLocale(languageCode, countryCode);
-  AppTheme get theme => AppTheme.getTheme(selectedTheme);
 }

@@ -8,8 +8,7 @@ import 'package:routine_planner/l10n/app_localizations.dart';
 import 'package:routine_planner/screens/login_screen.dart';
 import 'package:routine_planner/screens/signup_screen.dart';
 import 'package:routine_planner/screens/onboarding_screen.dart';
-import 'package:routine_planner/screens/task_spa_screen.dart';
-import 'package:routine_planner/screens/calendar_spa_screen.dart';
+import 'package:routine_planner/screens/main_layout.dart';
 import 'package:routine_planner/models/user_preferences.dart';
 import 'package:routine_planner/services/auth_service.dart';
 
@@ -37,8 +36,9 @@ class AuthWrapper extends StatelessWidget {
           return MaterialApp(
             title: 'Routine Planner',
             theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
               useMaterial3: true,
+              fontFamily: 'NotoSans',
             ),
             home: const AuthPage(),
             supportedLocales: AppLocalizations.supportedLocales,
@@ -61,9 +61,7 @@ class AuthWrapper extends StatelessWidget {
                   // Default to English if no prefs
                   locale = const Locale('en', 'US');
                 } else {
-                  home = preferences.preferredInterface == PreferredInterface.taskManagement
-                      ? const TaskSpaScreen()
-                      : const CalendarSpaScreen();
+                  home = const MainLayout();
                   locale = Locale(preferences.languageCode, preferences.countryCode);
                 }
               }
@@ -72,8 +70,9 @@ class AuthWrapper extends StatelessWidget {
               return MaterialApp(
                 title: 'Routine Planner',
                 theme: ThemeData(
-                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
                   useMaterial3: true,
+                  fontFamily: 'NotoSans',
                 ),
                 locale: locale,
                 supportedLocales: AppLocalizations.supportedLocales,

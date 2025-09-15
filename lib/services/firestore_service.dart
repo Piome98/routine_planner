@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:routine_planner/models/event.dart';
 import 'package:routine_planner/models/routine.dart';
 import 'package:routine_planner/models/routine_set.dart';
 import 'package:routine_planner/models/task.dart';
 import 'package:routine_planner/models/user.dart';
+import 'package:routine_planner/models/challenge.dart';
+import 'package:routine_planner/models/store_item.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -117,5 +120,107 @@ class FirestoreService {
     final user = _auth.currentUser;
     if (user == null) return;
     await _db.collection('users').doc(user.uid).collection('events').doc(eventId).delete();
+  }
+
+  // --- Challenge Operations ---
+  Future<void> addChallenge(ChallengeData challenge) async {
+    await _db.collection('challenges').add(challenge.toFirestore());
+  }
+
+  Stream<List<ChallengeData>> getChallenges() {
+    return _db.collection('challenges')
+        .where('isActive', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ChallengeData.fromFirestore(doc, null))
+            .toList());
+  }
+
+  Future<ChallengeData?> getChallenge(String challengeId) async {
+    final doc = await _db.collection('challenges').doc(challengeId).get();
+    if (doc.exists) {
+      return ChallengeData.fromFirestore(doc, null);
+    }
+    return null;
+  }
+
+  Future<void> updateChallenge(ChallengeData challenge) async {
+    if (challenge.id.isEmpty) return;
+    await _db.collection('challenges').doc(challenge.id).update(challenge.toFirestore());
+  }
+
+  // --- Leaderboard Operations ---
+  Stream<List<LeaderboardUser>> getLeaderboard({int limit = 10}) {
+    return _db.collection('leaderboard')
+        .orderBy('points', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => LeaderboardUser.fromFirestore(doc, null))
+            .toList());
+  }
+
+  Future<void> updateUserPoints(String userId, int points) async {
+    final userRef = _db.collection('leaderboard').doc(userId);
+    final userDoc = await userRef.get();
+    
+    if (userDoc.exists) {
+      await userRef.update({'points': FieldValue.increment(points)});
+    } else {
+      final user = await getUser(userId);
+      if (user != null) {
+        await userRef.set({
+          'name': user.displayName ?? 'Anonymous',
+          'points': points,
+          'completedChallenges': 0,
+          'avatar': user.displayName?.substring(0, 2).toUpperCase() ?? 'AN',
+          'colorValue': Colors.blue.value,
+          'rank': 0,
+        });
+      }
+    }
+  }
+
+  // --- Store Operations ---
+  Future<void> addStoreItem(StoreItem item) async {
+    await _db.collection('store_items').add(item.toFirestore());
+  }
+
+  Stream<List<StoreItem>> getStoreItems() {
+    return _db.collection('store_items')
+        .where('isActive', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => StoreItem.fromFirestore(doc, null))
+            .toList());
+  }
+
+  Future<void> updateStoreItem(StoreItem item) async {
+    if (item.id.isEmpty) return;
+    await _db.collection('store_items').doc(item.id).update(item.toFirestore());
+  }
+
+  // --- User Points Operations ---
+  Future<int> getUserPoints() async {
+    final user = _auth.currentUser;
+    if (user == null) return 0;
+    
+    final doc = await _db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      return doc.data()?['points'] ?? 0;
+    }
+    return 0;
+  }
+
+  Future<void> addUserPoints(int points) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    
+    await _db.collection('users').doc(user.uid).update({
+      'points': FieldValue.increment(points),
+    });
+    
+    // Update leaderboard as well
+    await updateUserPoints(user.uid, points);
   }
 }
